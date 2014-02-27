@@ -1,0 +1,28 @@
+
+#real-estate-media {
+    float: right;
+    width: 58%;
+}
+
+#real-estate-values {
+    float: left;
+    clear: left;
+    width: 42%;
+}
+
+#real-estate-description {
+    clear: both;
+;
+}
+
+#real-estate-values .field-label {
+    width: 100px;
+}
+
+#real-estate-values .field {
+    padding-bottom: 10px;
+}
+
+#real-estate-values .field-name-property-price .field-item {
+    font-size: 22px;
+}

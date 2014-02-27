@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function real_estate_menu() {
+  $items = array();
+
+  $items['admin/real_estate'] = array(
+    'title' => 'Real Estate',
+    'description' => 'Administer Real Estate.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file path' => drupal_get_path('module', 'system'),
+    'file' => 'system.admin.inc',
+    'weight' => -7,
+  );
+  $items['admin/real_estate/config'] = array(
+    'title' => 'Configuration',
+    'description' => 'Configure settings for the Real Estate site.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 50,
+    'file path' => drupal_get_path('module', 'system'),
+    'file' => 'system.admin.inc',
+  );
+
+  return $items;
+}
+

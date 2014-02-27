@@ -1,0 +1,22 @@
+<?php
+
+
+/**
+ * Implements hook_install().
+ */
+function real_estate_simplegmap_install() {
+
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function real_estate_simplegmap_uninstall() {
+
+  $result = db_query("SELECT name from {variable} WHERE name like 'real_estate_simplegmap_%'");
+  foreach ($result as $record) {
+    variable_del($record->name);
+  }
+
+}

@@ -1,0 +1,22 @@
+name = Kickstart
+description = Real Estate easy installation
+package = Real Estate
+dependencies[] = real_estate
+dependencies[] = real_estate_property
+dependencies[] = real_estate_flexslider
+dependencies[] = real_estate_simplegmap
+dependencies[] = mortgage_calculator
+
+version = 7.x-1.x-dev
+core = 7.x
+
+files[] = includes/real_estate_kickstart.inc
+stylesheets[all][] = theme/real_estate_kickstart.css
+scripts[] = real_estate_kickstart.js
+
+; Information added by drupal.org packaging script on 2013-10-01
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "real_estate"
+datestamp = "1380624941"
+

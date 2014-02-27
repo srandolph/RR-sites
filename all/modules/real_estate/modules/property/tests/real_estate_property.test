@@ -1,0 +1,99 @@
+<?php
+
+class RealEstatePropertyWebTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Real Estate Property - Test Main',
+      'description' => t('Real Estate Property Test Main'),
+      'group' => 'Real Estate',
+    );
+  }
+
+  public function setUp() {
+    // Enable Real Estate Property module and any other modules.
+    $modules = func_get_args();
+    $modules = isset($modules[0]) ? $modules[0] : $modules;
+    $modules[] = 'real_estate_property';
+    parent::setUp($modules);
+
+    // Create a new admin user
+    $test_admin = $this->drupalCreateUser(array('administer property'));
+    $this->drupalLogin($test_admin);
+  }
+
+  public function testRealEstatePropertyMain() {
+    $this->createRealEstateProperty(array('type' => 'home', 'title' => 'Basic Home Test'));
+    $this->createRealEstatePropertyType(array());
+
+  }
+
+
+  /**
+   * Creates a Real Estate Property.
+   *
+   * @param array $settings
+   * @return object Real Estate Property object.
+   */
+  protected function createRealEstateProperty($settings = array()) {
+    // Populate defaults array.
+    $settings += array(
+      'description'      => array(LANGUAGE_NONE => array(array())),
+      'title'     => $this->randomName(8),
+      'changed'   => REQUEST_TIME,
+      'revision'  => 1,
+      'log'       => '',
+      'status'    => 1,
+      'type'      => 'home',
+      'revisions' => NULL,
+      'language'  => LANGUAGE_NONE,
+    );
+
+    // Use the original property's created time for existing properties.
+    if (isset($settings['created']) && !isset($settings['date'])) {
+      $settings['date'] = format_date($settings['created'], 'custom', 'Y-m-d H:i:s O');
+    }
+
+    $settings['uid'] = $this->loggedInUser->uid;
+
+    $property = real_estate_property_create($settings);
+
+    real_estate_property_save($property);
+
+    return $property;
+  }
+
+  /**
+   * Creates a Real Estate Property Type.
+   *
+   * @param array $settings
+   * @return object Real Estate Property Type object.
+   */
+  protected function createRealEstatePropertyType($settings = array()) {
+    // Find a non-existent random type name.
+    do {
+      $name = strtolower($this->randomName(8));
+    } while (real_estate_property_get_types($name));
+
+    // Populate defaults array.
+    $defaults = array(
+      'type' => $name,
+      'label' => $name,
+      'description' => '',
+      'revision' => 1,
+    );
+    $type = $settings + $defaults;
+    $property_type = real_estate_property_type_create($type);
+
+    $property_type_saved = real_estate_property_type_save($property_type);
+    menu_rebuild();
+
+    $this->assertEqual($property_type_saved, SAVED_NEW, t('Created content type %type.', array('%type' => $property_type->type)));
+
+    // Reset permissions so that permissions for this content type are available.
+    $this->checkPermissions(array(), TRUE);
+
+    return $type;
+  }
+
+}
+

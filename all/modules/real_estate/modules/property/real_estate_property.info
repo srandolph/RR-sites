@@ -1,0 +1,41 @@
+name = Property
+description = Defines the Property entity
+package = Real Estate
+
+configure = admin/real_estate/property_type
+
+dependencies[] = number
+dependencies[] = text
+dependencies[] = image
+dependencies[] = real_estate
+dependencies[] = addressfield
+dependencies[] = entity
+dependencies[] = views
+
+version = 7.x-1.x-dev
+core = 7.x
+
+files[] = tests/real_estate_property.test
+
+stylesheets[all][] = theme/real_estate_property.css
+
+; Module includes
+files[] = includes/real_estate_property.inc
+files[] = includes/real_estate_property.controller.inc
+files[] = includes/real_estate_property.uicontroller.inc
+files[] = includes/real_estate_property_type.controller.inc
+files[] = includes/real_estate_property_type.uicontroller.inc
+
+; Views includes
+files[] = views/real_estate_property.views.inc
+files[] = views/handlers/real_estate_property_handler_link_field.inc
+files[] = views/handlers/real_estate_property_handler_delete_link_field.inc
+files[] = views/handlers/real_estate_property_handler_edit_link_field.inc
+files[] = views/handlers/real_estate_property_handler_real_estate_property_operations_field.inc
+
+; Information added by drupal.org packaging script on 2013-10-01
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "real_estate"
+datestamp = "1380624941"
+

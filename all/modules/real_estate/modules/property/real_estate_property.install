@@ -1,0 +1,377 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function real_estate_property_install() {
+
+  // clear a field cache for be found a newly created field type - addressfield
+  cache_clear_all('field_info_types:', 'cache_field', TRUE);
+
+  // create fields that will be used in an every real estate property bundle
+  field_create_field(array(
+    'field_name' => 'property_address',
+    'cardinality' => 1,
+    'type' => 'addressfield',
+    'module' => 'addressfield'
+  ));
+
+  field_create_field(array(
+    'field_name' => 'property_photo',
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'type' => 'image',
+  ));
+
+  field_create_field(array(
+    'field_name' => 'property_price',
+    'cardinality' => 1,
+    'type' => 'number_decimal',
+  ));
+
+  field_create_field(array(
+    'field_name' => 'property_lot_size',
+    'cardinality' => 1,
+    'type' => 'number_decimal',
+  ));
+
+  field_create_field(array(
+    'field_name' => 'property_description',
+    'cardinality' => 1,
+    'type' => 'text_long',
+  ));
+
+  // Create the basic real estate property type Home and few additional fields
+  $type = array(
+    'type' => 'home',
+    'label' => t('Home'),
+    'description' => t("A basic property type."),
+  );
+  $property_type = real_estate_property_type_create($type);
+  real_estate_property_type_save($property_type);
+
+  // add fields Address Photo and Price
+  _real_estate_property_type_add_few_fields('home');
+
+  // set permission to view the property for anonymous and logged users
+  user_role_change_permissions(DRUPAL_ANONYMOUS_RID, array('view any home property' => TRUE));
+  user_role_change_permissions(DRUPAL_AUTHENTICATED_RID, array('view any home property' => TRUE));
+
+  // Add a required radio field.
+  field_create_field(array(
+    'field_name' => 'property_bedrooms',
+    'type' => 'list_text',
+    'settings' => array(
+      'allowed_values' => array(
+        '1' => '1',
+        '1.5' => '1.5',
+        '2' => '2',
+        '2.5' => '2.5',
+        '3' => '3',
+        '3.5' => '3.5',
+        '4' => '4',
+        '4.5' => '4.5',
+        '5' => '5',
+        '5+' => '5+',
+      ),
+    ),
+  ));
+  field_create_instance(array(
+    'field_name' => 'property_bedrooms',
+    'entity_type' => 'real_estate_property',
+    'label' => 'Bedrooms',
+    'bundle' => 'home',
+    'required' => FALSE,
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+      )
+    ),
+    'widget' => array(
+      'type' => 'options_select',
+    ),
+  ));
+
+  field_create_field(array(
+    'field_name' => 'property_bathrooms',
+    'type' => 'list_text',
+    'settings' => array(
+      'allowed_values' => array(
+        '1' => '1',
+        '1.5' => '1.5',
+        '2' => '2',
+        '2.5' => '2.5',
+        '3' => '3',
+        '3.5' => '3.5',
+        '4' => '4',
+        '4.5' => '4.5',
+        '5' => '5',
+        '5+' => '5+',
+      ),
+    ),
+  ));
+  field_create_instance(array(
+    'field_name' => 'property_bathrooms',
+    'entity_type' => 'real_estate_property',
+    'label' => 'Bathrooms',
+    'bundle' => 'home',
+    'required' => FALSE,
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+      )
+    ),
+    'widget' => array(
+      'type' => 'options_select',
+    ),
+  ));
+
+  field_create_field(array(
+    'field_name' => 'property_yearbuilt',
+    'cardinality' => 1,
+    'type' => 'number_integer',
+  ));
+  field_create_instance(array(
+    'field_name' => 'property_yearbuilt',
+    'entity_type' => 'real_estate_property',
+    'label' => 'Year Built',
+    'bundle' => 'home',
+    'required' => FALSE,
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+      )
+    ),
+    'widget' => array(
+      'label' => 'inline'
+    )
+  ));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function real_estate_property_uninstall() {
+  field_delete_field('property_address');
+  field_delete_field('property_photo');
+  field_delete_field('property_price');
+  field_delete_field('property_description');
+
+  field_delete_field('property_lot_size');
+  field_delete_field('property_bedrooms');
+  field_delete_field('property_bathrooms');
+  field_delete_field('property_yearbuilt');
+
+}
+
+/**
+ * Implements hook_schema().
+ */
+function real_estate_property_schema() {
+  $schema = array();
+
+  $schema['real_estate_property'] = array(
+    'description' => 'The base table for properties.',
+    'fields' => array(
+      'property_id' => array(
+        'description' => 'The primary identifier.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_id' => array(
+        'description' => 'The version identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'title' => array(
+        'description' => 'The title of this property.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'type' => array(
+        'description' => 'The type of this property, token from real_estate_property_type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'The user\'s uid that created this property.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'language' => array(
+        'description' => 'The language of the property.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating if the property appears in lists.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the property was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the property was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data.',
+      ),
+    ),
+    'primary key' => array('property_id'),
+    'indexes' => array(
+      'property_type' => array('type'),
+      'uid' => array('uid'),
+    ),
+    'unique keys' => array(
+      'revision_id' => array('revision_id'),
+    ),
+    'foreign keys' => array(
+      'current_revision' => array(
+        'table' => 'real_estate_property_revision',
+        'columns'=> array('revision_id' => 'revision_id'),
+      ),
+      'creator' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+  $schema['real_estate_property_revision'] = array(
+    'description' => 'Saves information about each saved revision of a {real_estate_property}.',
+    'fields' => array(
+      'property_id' => array(
+        'description' => 'The primary identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'revision_id' => array(
+        'description' => 'The version identifier.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The title of this property.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'revision_uid' => array(
+        'description' => 'The user\'s uid that owns the property at this revision.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Boolean',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'log' => array(
+        'description' => 'Describe the changes in this version.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big',
+      ),
+      'revision_timestamp' => array(
+        'description' => 'The Unix timestamp when this revision was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data for this revision.',
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'property_id' => array('property_id'),
+      'revision_uid' => array('revision_uid'),
+    ),
+    'foreign keys' => array(
+      'property' => array(
+        'table' => 'real_estate_property',
+        'columns' => array('property_id' => 'property_id'),
+      ),
+      'owner' => array(
+        'table' => 'users',
+        'columns' => array('revision_uid' => 'uid'),
+      ),
+    ),
+  );
+
+  $schema['real_estate_property_type'] = array(
+     'fields' => array(
+      'type' => array(
+        'description' => 'The machine-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'A brief description of the type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+      ),
+      'revision' => array(
+         'description' => 'Create or not a new revision when a property of this type is updated.',
+         'type' => 'int',
+         'size' => 'tiny',
+         'not null' => TRUE,
+         'default' => 1,
+      ),
+      'data' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data related to this model type.',
+      ),
+    ) + entity_exportable_schema_fields(), // plus fields for exportability
+    'primary key' => array('type'),
+  );
+
+  return $schema;
+}
+
+

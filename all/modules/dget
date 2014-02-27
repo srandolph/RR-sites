@@ -1,0 +1,4 @@
+wget ftp.drupal.org/files/projects/$1
+tar -xvf $1
+rm $1
+

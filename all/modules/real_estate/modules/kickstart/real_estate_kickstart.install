@@ -1,0 +1,53 @@
+<?php
+
+/**
+* Implementation of hook_install()
+*/
+function real_estate_kickstart_install() {
+
+  real_estate_kickstart_add_property();
+
+  // Enable and configure the Real Estate Mortgage Calculator
+  // hook_block_info_alter not used, because a administrator must have
+  //possibility to change block settings later.
+  db_update('block')
+    ->fields(array(
+      'region' => 'content',
+      'status' => 1,
+      'weight' => 6,
+      'visibility' => BLOCK_VISIBILITY_LISTED,
+      'pages' => 'real_estate_property/*',
+    ))
+    ->condition('module', 'mortgage_calculator')
+    ->condition('delta', 'mortgage_calculator_js_1')
+    ->execute();
+
+}
+
+/**
+* Implementation of hook_uninstall()
+*/
+function real_estate_kickstart_uninstall() {
+
+  $real_estate_property_enabled = TRUE;
+  if(!module_exists('real_estate_property')) {
+    module_enable(array('real_estate_property'));
+    $real_estate_property_enabled = FALSE;
+  }
+
+  // remove the demo home
+  $demo_homes = real_estate_property_load_multiple(FALSE);
+  foreach($demo_homes as $home) {
+    // remove only property added by that module
+    if($home->created == 0) {
+      real_estate_property_delete($home);
+    }
+  }
+
+  if(!$real_estate_property_enabled) {
+    module_disable(array('real_estate_property'));
+  }
+
+}
+
+

@@ -1,0 +1,105 @@
+<?php
+
+/**
+ * Implements hook_block_info().
+ */
+function real_estate_simplegmap_block_info() {
+  $blocks['real_estate_simplegmap'] = array(
+    'info' => t('Real Estate Simple GMap'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+    'weight' => 5,
+    'status' => 1,
+    'region' => 'content',
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function real_estate_simplegmap_block_view($delta = '') {
+  global $is_https;
+
+  $block = array();
+  $block['content'] = '';
+
+  $property_id = (int) arg(1);
+  $property = real_estate_property_load($property_id);
+  if (!$property) {
+    return '';
+  }
+
+  $fields = field_get_items('real_estate_property', $property, 'property_address', $property->language);
+  if (empty($fields)) {
+    return '';
+  }
+
+  drupal_add_js('//maps.googleapis.com/maps/api/js?sensor=false', 'external');
+  drupal_add_js(drupal_get_path('module', 'real_estate_simplegmap') . '/real_estate_simplegmap.js');
+
+  $settings = array(
+    'zoom' => variable_get('real_estate_simplegmap_zoom', 14),
+    'size' => variable_get('real_estate_simplegmap_size' , '680x300'),
+    'maptype' => $maptype = variable_get('real_estate_simplegmap_type', 'roadmap'),
+  );
+
+  foreach ($fields as $address_field) {
+    $data_cleaned = array_filter($address_field);
+
+    // a country not enough for determining a home place ;)
+    if (isset($data_cleaned['country']) && sizeof($data_cleaned) <= 1) {
+      continue;
+    }
+    $address = real_estate_property_convert_address($address_field);
+
+    $settings['icon_url'] = variable_get('real_estate_simplegmap_icon_url', '');
+    $settings['icon_url'] = empty($settings['icon_url']) ? 'color:green' : 'icon:' . $settings['icon_url'];
+
+    $settings['simplegmap_url'] = url('http://maps.googleapis.com/maps/api/simplegmap', array(
+        'external' => TRUE,
+        'https' => $is_https,
+        'query' => array(
+          'center' => $address,
+          'zoom' => $settings['zoom'],
+          'size' => $settings['size'],
+          'maptype' => $settings['maptype'],
+          'sensor' => 'false',
+          'markers' => implode('|', array(url($settings['icon_url'], array('external' => TRUE)), $address)),
+        ),
+      )
+    );
+
+    drupal_add_js(array('simplegmap' => array('address' => $address, 'zoom' => $settings['zoom'], 'maptype' => $settings['maptype'])), 'setting');
+
+    $render = theme('real_estate_simplegmap', array(
+      'address' => urldecode($address),
+      'settings' => $settings,
+    ));
+
+    $block['content'] .= $render;
+  }
+
+  return $block;
+
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function real_estate_simplegmap_theme() {
+  return array(
+    'real_estate_simplegmap' => array(
+      'variables' => array(
+        'address' => NULL,
+        'settings' => NULL,
+      ),
+      'template' => 'real_estate_simplegmap',
+      'path' => drupal_get_path('module', 'real_estate_simplegmap') . '/theme',
+    ),
+  );
+}
+
+
+
