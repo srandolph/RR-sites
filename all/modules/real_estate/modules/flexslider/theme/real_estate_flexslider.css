@@ -11,7 +11,7 @@
 }
 
 #real_estate_flexslider #flexslider-2 .slides li {
-    opacity: 0.4;
+    opacity: 0.5;
 }
 
 #real_estate_flexslider #flexslider-2 .slides li.flex-active-slide {
@@ -24,4 +24,8 @@
 
 #real_estate_flexslider img {
     width: auto;
+}
+
+#real_estate_flexslider .flex-direction-nav a:before {
+    font-size: 32px;
 }

@@ -80,7 +80,7 @@
 <?php if ($show_messages) { print $messages; }; ?>
 
 <div style="clear:both"></div>
-<div id="notice"><p>©2012 Ron Randolph. All Rights Reserved. Website developed by <a href="http://www.tetrasys.org">TetraSys.org</a> </p></div>
+<div id="notice"><p>©2014 Ron Randolph. All Rights Reserved. Website developed by <a href="http://www.tetrasys.org">TetraSys.org</a> </p></div>
 </div>
 
 </body>

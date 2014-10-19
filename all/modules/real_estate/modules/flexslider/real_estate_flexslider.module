@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @file
+ * Real Estate Flexslider module.
+ */
 
 /**
  * Implements hook_field_formatter_info().
@@ -34,7 +37,7 @@ function real_estate_flexslider_field_formatter_settings_form($field, $instance,
 
   $form = array();
 
-  // Show select box for the option set
+  // Show select box for the option set.
   $optionsets = array();
   ctools_include('export');
   foreach (flexslider_optionset_load_all() as $name => $optionset) {
@@ -61,7 +64,12 @@ function real_estate_flexslider_field_formatter_settings_form($field, $instance,
       '#title' => t('Use image title as the caption'),
       '#type' => 'checkbox',
       '#disabled' => TRUE,
-      '#description' => t('You need to <a href="@url">enable the Title field</a> for this image field to be able use it as a caption.', array('@url' => url('admin/structure/types/manage/' . $instance['bundle'] . '/fields/' . $instance['field_name'], array('fragment' => 'edit-instance-settings-title-field', 'query' => array('destination' => 'admin/structure/types/manage/' . $instance['bundle'] . '/display'))))),
+      '#description' => t('You need to <a href="@url">enable the Title field</a> for this image field to be able use it as a caption.', array(
+        '@url' => url('admin/structure/types/manage/' . $instance['bundle'] . '/fields/' . $instance['field_name'], array(
+          'fragment' => 'edit-instance-settings-title-field',
+          'query' => array('destination' => 'admin/structure/types/manage/' . $instance['bundle'] . '/display')
+        ))
+      )),
     );
   }
   else {
@@ -86,7 +94,7 @@ function real_estate_flexslider_field_formatter_settings_summary($field, $instan
 
   $summary = array();
 
-  // Load option set
+  // Load option set.
   ctools_include('export');
 
   if (!empty($settings['optionset'])) {
@@ -96,7 +104,7 @@ function real_estate_flexslider_field_formatter_settings_summary($field, $instan
     }
   }
 
-  // Build settings summary
+  // Build settings summary.
   $optionset = isset($optionset) ? $optionset->title : t('Default settings');
   $summary[] = t('Option set: %optionset', array('%optionset' => $optionset));
 
@@ -107,7 +115,7 @@ function real_estate_flexslider_field_formatter_settings_summary($field, $instan
     }
   }
 
-  // Build settings summary
+  // Build settings summary.
   $optionset_carusel = isset($optionset_carusel) ? $optionset_carusel->title : t('Default settings');
   $summary[] = t('Option set: %optionset_carusel', array('%optionset_carusel' => $optionset_carusel));
 
@@ -116,28 +124,76 @@ function real_estate_flexslider_field_formatter_settings_summary($field, $instan
 
 /**
  * Implements hook_field_formatter_view().
- *
- * Prepares a renderable array of images and adds the neccessary JS and CSS
  */
 function real_estate_flexslider_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  if ($field['type'] == 'media') {
-    $image_items = array();
-    foreach ($items as $item) {
-      if ($item['file']->type == 'image') {
-        $file = (array) $item['file'];
-        $file += array('alt' => '', 'title' => '');
-        $image_items[] = $file;
-      }
-    }
-    $items = $image_items;
-  }
 
   $element = array();
   if (count($items) > 0) {
-    $element[] = array(
+
+    $optionset = $display['settings']['optionset'];
+    // Load the selected optionset.
+    if (!empty($optionset)) {
+      $optionset = flexslider_optionset_load($optionset);
+    }
+
+    $optionset_carusel = $display['settings']['optionset_carusel'];
+    // Load the selected optionset.
+    if (!empty($optionset_carusel)) {
+      $optionset_carusel = flexslider_optionset_load($optionset_carusel);
+    }
+
+    foreach ($items as $key => $item) {
+      $tmp = $item;
+      $item = array();
+      $item['item'] = $tmp;
+
+      // Setup the variables for calling theme_image_style.
+      $item['slide']['path'] = $item['item']['uri'];
+      $item['slide']['width'] = $item['item']['width'];
+      $item['slide']['height'] = $item['item']['height'];
+      $item['slide']['alt'] = $item['item']['alt'];
+      $item['slide']['title'] = $item['item']['title'];
+
+      // Check caption settings.
+      if ($display['settings']['caption']) {
+        $item['caption'] = filter_xss($item['item']['title']);
+      }
+
+      // Render the slide item for top part of the slider.
+      $item['slide']['style_name'] = $optionset->imagestyle_normal;
+
+      $items[$key] = array();
+      if (!empty($item['slide']['style_name'])) {
+        // Generate the HTML for the slide.
+        $items[$key]['slide'] = theme('image_style', $item['slide']);
+      }
+      else {
+        // Generate the HTML for the slide.
+        $items[$key]['slide'] = theme('image', $item['slide']);
+      }
+      $items[$key]['item'] = $item['item'];
+
+      // Render the slide item for carousel.
+      $item['slide']['style_name'] = $optionset_carusel->imagestyle_normal;
+
+      if (!empty($item['slide']['style_name'])) {
+        // Generate the HTML for the slide.
+        $items_carusel[$key]['slide'] = theme('image_style', $item['slide']);
+      }
+      else {
+        // Generate the HTML for the slide.
+        $items_carusel[$key]['slide'] = theme('image', $item['slide']);
+      }
+      $items_carusel[$key]['item'] = $item['item'];
+
+    }
+
+    $element = array(
       '#theme' => 'real_estate_flexslider',
       '#items' => $items,
       '#settings' => $display['settings'],
+      '#items_carusel' => $items_carusel,
+      '#settings_carusel' => $display['settings'],
     );
   }
 
@@ -149,9 +205,14 @@ function real_estate_flexslider_field_formatter_view($entity_type, $entity, $fie
  */
 function real_estate_flexslider_theme() {
   return array(
-    // Container for nav elements (arrows)
+    // Container for nav elements (arrows).
     'real_estate_flexslider' => array(
-      'variables' => array('items' => array(), 'settings' => array()),
+      'variables' => array(
+        'items' => array(),
+        'settings' => array(),
+        'items_carusel' => array(),
+        'settings_carusel' => array()
+      ),
       'template' => 'theme/real_estate_flexslider',
 
     ),
@@ -164,68 +225,64 @@ function real_estate_flexslider_theme() {
  */
 function template_preprocess_real_estate_flexslider(&$vars) {
 
-  // Reference configuration variables
-  $optionset = &$vars['settings']['optionset'];
-  $settings = &$vars['settings'];
-  $items = &$vars['items'];
+  // Reference configuration variables.
+  $optionset = & $vars['settings']['optionset'];
+  $settings = & $vars['settings'];
+  $items = & $vars['items'];
 
-  // Set the list type
+  // Set the list type.
   $settings['type'] = 'ul';
 
-  // Load the selected optionset
+  // Load the selected optionset.
   if (!empty($optionset)) {
     $optionset = flexslider_optionset_load($optionset);
   }
 
-  // Check if an optionset was loaded
+  // Check if an optionset was loaded.
   if (empty($optionset)) {
-    // Fall back to 'default' option set
+    // Fall back to 'default' option set.
     $optionset = flexslider_optionset_load('default');
     watchdog('flexslider', 'Fallback to default optionset.', array(), WATCHDOG_WARNING);
   }
 
-  // Configure attributes for containing elements
+  // Configure attributes for containing elements.
   $attributes = array();
-  // Merge with defined attributes
+  // Merge with defined attributes.
   if (isset($settings['attributes']) and is_array($settings['attributes'])) {
     $attributes += $settings['attributes'];
   }
 
-  // Each flexslider instance gets a unique id
-  $flexslider_id = &drupal_static('flexslider_id', 0);
+  // Each flexslider instance gets a unique id.
+  $flexslider_id = & drupal_static('flexslider_id', 0);
   $attributes['id'] = 'flexslider-' . ++$flexslider_id;
 
-  // Add the flexslider class to be namespaced
+  // Add the flexslider class to be namespaced.
   $attributes['class'][] = 'flexslider';
 
-  // Add the namespace to any classes
+  // Add the namespace to any classes.
   if (!empty($attributes['class']) &&
-      !empty($optionset->options['namespace'])
+    !empty($optionset->options['namespace'])
   ) {
     foreach ($attributes['class'] as $key => $value) {
       $attributes['class'][$key] = $optionset->options['namespace'] . $value;
     }
   }
 
-  // Add default class
+  // Add default class.
   $attributes['class'][] = 'flexslider';
 
   // Add the attributes to the settings array.
   $settings['attributes'] = $attributes;
 
-  // Finally, add the FlexSlider library
+  // Finally, add the FlexSlider library.
   flexslider_add($settings['attributes']['id'], $optionset);
-
 
   $attributes['id'] = 'flexslider-' . ++$flexslider_id;
   $settings['attributes_carusel'] = $attributes;
 
-  // Reference configuration variables
-  $optionset_carusel = &$vars['settings']['optionset_carusel'];
+  // Reference configuration variables.
+  $optionset_carusel = & $vars['settings']['optionset_carusel'];
   $optionset_carusel = flexslider_optionset_load($optionset_carusel);
 
   flexslider_add($settings['attributes_carusel']['id'], $optionset_carusel);
 }
-
-
-

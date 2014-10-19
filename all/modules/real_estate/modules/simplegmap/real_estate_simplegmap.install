@@ -1,13 +1,9 @@
 <?php
 
-
 /**
- * Implements hook_install().
+ * @file
+ * Real Estate Simplegmap module installation.
  */
-function real_estate_simplegmap_install() {
-
-
-}
 
 /**
  * Implements hook_uninstall().

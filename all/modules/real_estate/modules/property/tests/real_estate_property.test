@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Real estate property test
+ */
+
 class RealEstatePropertyWebTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
@@ -16,7 +21,7 @@ class RealEstatePropertyWebTestCase extends DrupalWebTestCase {
     $modules[] = 'real_estate_property';
     parent::setUp($modules);
 
-    // Create a new admin user
+    // Create a new admin user.
     $test_admin = $this->drupalCreateUser(array('administer property'));
     $this->drupalLogin($test_admin);
   }
@@ -32,20 +37,23 @@ class RealEstatePropertyWebTestCase extends DrupalWebTestCase {
    * Creates a Real Estate Property.
    *
    * @param array $settings
-   * @return object Real Estate Property object.
+   *   settings
+   *
+   * @return object
+   *   Real Estate Property object.
    */
   protected function createRealEstateProperty($settings = array()) {
     // Populate defaults array.
     $settings += array(
-      'description'      => array(LANGUAGE_NONE => array(array())),
-      'title'     => $this->randomName(8),
-      'changed'   => REQUEST_TIME,
-      'revision'  => 1,
-      'log'       => '',
-      'status'    => 1,
-      'type'      => 'home',
+      'description' => array(LANGUAGE_NONE => array(array())),
+      'title' => $this->randomName(8),
+      'changed' => REQUEST_TIME,
+      'revision' => 1,
+      'log' => '',
+      'status' => 1,
+      'type' => 'home',
       'revisions' => NULL,
-      'language'  => LANGUAGE_NONE,
+      'language' => LANGUAGE_NONE,
     );
 
     // Use the original property's created time for existing properties.
@@ -66,7 +74,10 @@ class RealEstatePropertyWebTestCase extends DrupalWebTestCase {
    * Creates a Real Estate Property Type.
    *
    * @param array $settings
-   * @return object Real Estate Property Type object.
+   *   settings
+   *
+   * @return object
+   *   Real Estate Property Type object.
    */
   protected function createRealEstatePropertyType($settings = array()) {
     // Find a non-existent random type name.
@@ -96,4 +107,3 @@ class RealEstatePropertyWebTestCase extends DrupalWebTestCase {
   }
 
 }
-

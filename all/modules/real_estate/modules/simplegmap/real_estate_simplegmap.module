@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Real Estate Simplegmap module.
+ */
+
+/**
  * Implements hook_block_info().
  */
 function real_estate_simplegmap_block_info() {
@@ -40,14 +45,14 @@ function real_estate_simplegmap_block_view($delta = '') {
 
   $settings = array(
     'zoom' => variable_get('real_estate_simplegmap_zoom', 14),
-    'size' => variable_get('real_estate_simplegmap_size' , '680x300'),
+    'size' => variable_get('real_estate_simplegmap_size', '680x300'),
     'maptype' => $maptype = variable_get('real_estate_simplegmap_type', 'roadmap'),
   );
 
   foreach ($fields as $address_field) {
     $data_cleaned = array_filter($address_field);
 
-    // a country not enough for determining a home place ;)
+    // A country not enough for determining a home place ;).
     if (isset($data_cleaned['country']) && sizeof($data_cleaned) <= 1) {
       continue;
     }
@@ -65,12 +70,21 @@ function real_estate_simplegmap_block_view($delta = '') {
           'size' => $settings['size'],
           'maptype' => $settings['maptype'],
           'sensor' => 'false',
-          'markers' => implode('|', array(url($settings['icon_url'], array('external' => TRUE)), $address)),
+          'markers' => implode('|', array(
+            url($settings['icon_url'], array('external' => TRUE)),
+            $address
+          )),
         ),
       )
     );
 
-    drupal_add_js(array('simplegmap' => array('address' => $address, 'zoom' => $settings['zoom'], 'maptype' => $settings['maptype'])), 'setting');
+    drupal_add_js(array(
+      'simplegmap' => array(
+        'address' => $address,
+        'zoom' => $settings['zoom'],
+        'maptype' => $settings['maptype'],
+      )
+    ), 'setting');
 
     $render = theme('real_estate_simplegmap', array(
       'address' => urldecode($address),
@@ -100,6 +114,3 @@ function real_estate_simplegmap_theme() {
     ),
   );
 }
-
-
-

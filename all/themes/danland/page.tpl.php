@@ -80,9 +80,9 @@
 <?php if ($page['highlighted']) : ?><div id="slideshow-bottom">
 <div id="mission"><?php print render ($page['highlighted']); ?></div></div><?php endif; ?>
 <div class="slideshow">
-<img src="<?php print $base_path . $directory; ?>/images/slideshows/RonBanner1.jpg" width="950" height="355" alt="Ron Banner1"/>
-<img src="<?php print $base_path . $directory; ?>/images/slideshows/RonBanner2.jpg" width="950" height="355" alt="Ron Banner2"/>
-<img src="<?php print $base_path . $directory; ?>/images/slideshows/RonBanner3.jpg" width="950" height="355" alt="Ron Banner3"/>
+<img src="<?php print $base_path . $directory; ?>/images/slideshows/RonBanner1n.jpg" width="950" height="355" alt="Ron Banner1"/>
+<img src="<?php print $base_path . $directory; ?>/images/slideshows/RonBanner2n.jpg" width="950" height="355" alt="Ron Banner2"/>
+<img src="<?php print $base_path . $directory; ?>/images/slideshows/RonBanner3n.jpg" width="950" height="355" alt="Ron Banner3"/>
 </div>
 </div>
 </div>
@@ -223,5 +223,5 @@
 </div> <!-- end footer wrapper -->
 
 <div style="clear:both"></div>
-<div id="notice"><p>&copy;2013 Ron Randolph. All Rights Reserved.   Web Site by <a href="http://tetrasys.org">Tetrasys</a></p></div>
+<div id="notice"><p>&copy;2014 Ron Randolph. All Rights Reserved.   Web Site by <a href="http://tetrasys.org">Tetrasys</a></p></div>
 </div>

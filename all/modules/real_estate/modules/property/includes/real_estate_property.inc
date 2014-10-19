@@ -37,9 +37,13 @@ class RealEstatePropertyTypeEntity extends Entity {
 
 
 /**
- * Function for converting an addressfield data format to a string
- * @param $address - a data in an addressfield format
- * @return string - a address in a string format
+ * Function for converting an addressfield data format to a string.
+ *
+ * @param $address
+ *   - a data in an addressfield format
+ *
+ * @return string
+ *   - a address in a string format
  */
 function real_estate_property_convert_address($address) {
   $handlers = array('address' => 'address');
@@ -48,7 +52,7 @@ function real_estate_property_convert_address($address) {
   $address = addressfield_generate($address, $handlers, $context);
   $address = drupal_render($address);
 
-  // add some commas for parsing an address by Google Map's API.
+  // Add some commas for parsing an address by Google Map's API.
   $address = preg_replace('/(<\/[^>]+?>)(<[^>\/][^>]*?>)/', '$1, $2', $address);
   $address = strip_tags($address);
 

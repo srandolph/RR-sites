@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Real Estate module.
+ */
+
+/**
  * Implements hook_menu().
  */
 function real_estate_menu() {
@@ -28,4 +33,3 @@ function real_estate_menu() {
 
   return $items;
 }
-

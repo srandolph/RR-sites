@@ -1,4 +1,4 @@
-?php
+<?php
 // $Id: page.tpl.php,v 1.17.2.4 2010/11/19 14:42:44 danprobo Exp $
 ?>
 <div <?php print danland_page_class($page['sidebar_first'], $page['sidebar_second']); ?>>
@@ -223,5 +223,5 @@
 </div> <!-- end footer wrapper -->
 
 <div style="clear:both"></div>
-<div id="notice"><p>&copy;2013 Ron Randolph. All Rights Reserved.   Web Site by <a href="http://tetrasys.org">Tetrasys</a></p></div>
+<div id="notice"><p>&copy;2014 Ron Randolph. All Rights Reserved.   Web Site by <a href="http://tetrasys.org">Tetrasys</a></p></div>
 </div>

@@ -33,9 +33,9 @@ files[] = views/handlers/real_estate_property_handler_delete_link_field.inc
 files[] = views/handlers/real_estate_property_handler_edit_link_field.inc
 files[] = views/handlers/real_estate_property_handler_real_estate_property_operations_field.inc
 
-; Information added by drupal.org packaging script on 2013-10-01
+; Information added by Drupal.org packaging script on 2014-04-01
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "real_estate"
-datestamp = "1380624941"
+datestamp = "1396383846"
 

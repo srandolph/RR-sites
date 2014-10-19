@@ -15,7 +15,8 @@ class RealEstatePropertyEntityController extends EntityAPIController {
    *
    * @param array $values
    *   An array of values to set, keyed by name.
-   * @return
+   *
+   * @return array
    *   A property object with all default fields initialized.
    */
   public function create(array $values = array()) {

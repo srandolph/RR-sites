@@ -1,8 +1,13 @@
 <?php
 
 /**
-* Add a demo home
-*/
+ * @file
+ * Real Estate Kickstart module installation.
+ */
+
+/**
+ * Add a demo home.
+ */
 function real_estate_kickstart_add_property() {
 
   $property = array(
@@ -12,15 +17,15 @@ function real_estate_kickstart_add_property() {
   );
   $new_property = real_estate_property_create($property);
 
-  // set default value for an address field
-  include_once(drupal_get_path('module', 'addressfield') . '/addressfield.devel_generate.inc');
+  // Set default value for an address field.
+  include_once drupal_get_path('module', 'addressfield') . '/addressfield.devel_generate.inc';
   $object_field = addressfield_default_values();
   $addresses = _addressfield_sample_addresses();
   $object_field = array_merge($object_field, $addresses[array_rand($addresses)]);
   unset($object_field['data']);
   $new_property->property_address[LANGUAGE_NONE][0] = array_merge($object_field, $addresses[array_rand($addresses)]);
 
-  // upload some photos
+  // Upload some photos.
   $photos = array(
     'foto1.jpg',
     'foto2.jpg',
@@ -29,12 +34,12 @@ function real_estate_kickstart_add_property() {
     'foto5.jpg',
   );
   foreach ($photos as $photo) {
-    $filepath = DRUPAL_ROOT . '/' . drupal_get_path('module', 'real_estate_kickstart') . '/images/' . $photo; //stored file path
+    // Stored file path.
+    $filepath = DRUPAL_ROOT . '/' . drupal_get_path('module', 'real_estate_kickstart') . '/images/' . $photo;
     $image = file_get_contents($filepath);
     $file_image = file_save_data($image, file_default_scheme() . '://' . $photo, FILE_EXISTS_RENAME);
     $new_property->property_photo[LANGUAGE_NONE][] = (array) $file_image;
   }
-
 
   $new_property->property_price[LANGUAGE_NONE][0]['value'] = 250000;
   $new_property->property_lot_size[LANGUAGE_NONE][0]['value'] = '1000';
@@ -48,20 +53,18 @@ function real_estate_kickstart_add_property() {
 }
 
 /**
-* Implementation of hook_form_BASE_FORM_ID_alter()
-*/
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
 function real_estate_kickstart_form_mortgage_calculator_js_form_alter(&$form, &$form_state, $form_id) {
 
-  // filling the mortgage calculator's fields
+  // Filling the mortgage calculator's fields.
   $property_id = (int) arg(1);
   $property = real_estate_property_load($property_id);
 
-  if($property) {
+  if ($property) {
     $form['loan_amount_2']['#value'] = $property->property_price[LANGUAGE_NONE][0]['value'];
     $form['mortgage_rate_2']['#value'] = 4.2;
     $form['years_to_pay_2']['#value'] = 30;
   }
 
 }
-
-

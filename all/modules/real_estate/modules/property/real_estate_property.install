@@ -1,19 +1,24 @@
 <?php
 
 /**
+ * @file
+ * Real Estate Property module installer.
+ */
+
+/**
  * Implements hook_install().
  */
 function real_estate_property_install() {
 
-  // clear a field cache for be found a newly created field type - addressfield
+  // Clear a field cache for be found a newly created field type - addressfield.
   cache_clear_all('field_info_types:', 'cache_field', TRUE);
 
-  // create fields that will be used in an every real estate property bundle
+  // Create fields that will be used in an every real estate property bundle.
   field_create_field(array(
     'field_name' => 'property_address',
     'cardinality' => 1,
     'type' => 'addressfield',
-    'module' => 'addressfield'
+    'module' => 'addressfield',
   ));
 
   field_create_field(array(
@@ -40,19 +45,19 @@ function real_estate_property_install() {
     'type' => 'text_long',
   ));
 
-  // Create the basic real estate property type Home and few additional fields
+  // Create the basic real estate property type Home and few additional fields.
   $type = array(
     'type' => 'home',
-    'label' => t('Home'),
-    'description' => t("A basic property type."),
+    'label' => 'Home',
+    'description' => "A basic property type.",
   );
   $property_type = real_estate_property_type_create($type);
   real_estate_property_type_save($property_type);
 
-  // add fields Address Photo and Price
+  // Add fields Address Photo and Price.
   _real_estate_property_type_add_few_fields('home');
 
-  // set permission to view the property for anonymous and logged users
+  // Set permission to view the property for anonymous and logged users.
   user_role_change_permissions(DRUPAL_ANONYMOUS_RID, array('view any home property' => TRUE));
   user_role_change_permissions(DRUPAL_AUTHENTICATED_RID, array('view any home property' => TRUE));
 
@@ -84,7 +89,7 @@ function real_estate_property_install() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-      )
+      ),
     ),
     'widget' => array(
       'type' => 'options_select',
@@ -118,7 +123,7 @@ function real_estate_property_install() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-      )
+      ),
     ),
     'widget' => array(
       'type' => 'options_select',
@@ -139,11 +144,11 @@ function real_estate_property_install() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-      )
+      ),
     ),
     'widget' => array(
-      'label' => 'inline'
-    )
+      'label' => 'inline',
+    ),
   ));
 }
 
@@ -249,7 +254,7 @@ function real_estate_property_schema() {
     'foreign keys' => array(
       'current_revision' => array(
         'table' => 'real_estate_property_revision',
-        'columns'=> array('revision_id' => 'revision_id'),
+        'columns' => array('revision_id' => 'revision_id'),
       ),
       'creator' => array(
         'table' => 'users',
@@ -332,7 +337,7 @@ function real_estate_property_schema() {
   );
 
   $schema['real_estate_property_type'] = array(
-     'fields' => array(
+    'fields' => array(
       'type' => array(
         'description' => 'The machine-readable name of this type.',
         'type' => 'varchar',
@@ -354,11 +359,11 @@ function real_estate_property_schema() {
         'size' => 'medium',
       ),
       'revision' => array(
-         'description' => 'Create or not a new revision when a property of this type is updated.',
-         'type' => 'int',
-         'size' => 'tiny',
-         'not null' => TRUE,
-         'default' => 1,
+        'description' => 'Create or not a new revision when a property of this type is updated.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,
       ),
       'data' => array(
         'type' => 'text',
@@ -367,11 +372,10 @@ function real_estate_property_schema() {
         'serialize' => TRUE,
         'description' => 'A serialized array of additional data related to this model type.',
       ),
-    ) + entity_exportable_schema_fields(), // plus fields for exportability
+      // Plus fields for exportability.
+    ) + entity_exportable_schema_fields(),
     'primary key' => array('type'),
   );
 
   return $schema;
 }
-
-

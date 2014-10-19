@@ -93,8 +93,8 @@ function real_estate_property_type_form_submit(&$form, &$form_state) {
   $real_estate_property_type = entity_ui_form_submit_build_entity($form, $form_state);
   $real_estate_property_type->save();
 
-  // add fields Address Photo and Price
-  if($form_state['op'] == 'add') {
+  // Add fields Address Photo and Price.
+  if ($form_state['op'] == 'add') {
     _real_estate_property_type_add_few_fields($real_estate_property_type->type);
   }
 
@@ -108,4 +108,3 @@ function real_estate_property_type_form_submit_delete(&$form, &$form_state) {
   $form_state['redirect'] = 'admin/real_estate/property_type/manage/' . $form_state['real_estate_property']->type . '/delete';
 
 }
-

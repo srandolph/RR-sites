@@ -3,7 +3,6 @@
 /**
  * @file
  * Property editing UI.
- *
  */
 
 /**
@@ -32,18 +31,17 @@ class RealEstatePropertyUIController extends EntityDefaultUIController {
     // Change the overview menu type for the list of real_estate_property.
     $items[$this->path]['type'] = MENU_LOCAL_TASK;
 
-    // Change the add page menu to multiple types of entities
+    // Change the add page menu to multiple types of entities.
     $items[$this->path . '/add'] = array(
       'title' => 'Add a Property',
       'description' => 'Add a new real_estate_property',
-      'page callback'  => 'real_estate_property_add_page',
-      'access callback'  => 'real_estate_property_access',
+      'page callback' => 'real_estate_property_add_page',
+      'access callback' => 'real_estate_property_access',
       'access arguments' => array('edit'),
       'type' => MENU_NORMAL_ITEM,
       'weight' => 20,
       'file' => 'real_estate_property.uicontroller.inc',
-      'file path' => drupal_get_path('module', $this->entityInfo['module']) . '/includes'
-
+      'file path' => drupal_get_path('module', $this->entityInfo['module']) . '/includes',
     );
 
     // Add menu items to add each different type of entity.
@@ -55,11 +53,11 @@ class RealEstatePropertyUIController extends EntityDefaultUIController {
         'access callback' => 'real_estate_property_access',
         'access arguments' => array('edit', 'edit ' . $type->type),
         'file' => 'real_estate_property.uicontroller.inc',
-        'file path' => drupal_get_path('module', $this->entityInfo['module']) . '/includes'
+        'file path' => drupal_get_path('module', $this->entityInfo['module']) . '/includes',
       );
     }
 
-    // Loading and editing real_estate_property entities
+    // Loading and editing real_estate_property entities.
     $items[$this->path . '/' . $wildcard] = array(
       'page callback' => 'real_estate_property_form_wrapper',
       'page arguments' => array($id_count),
@@ -68,7 +66,7 @@ class RealEstatePropertyUIController extends EntityDefaultUIController {
       'weight' => 0,
       'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
       'file' => 'real_estate_property.uicontroller.inc',
-      'file path' => drupal_get_path('module', $this->entityInfo['module']) . '/includes'
+      'file path' => drupal_get_path('module', $this->entityInfo['module']) . '/includes',
     );
     $items[$this->path . '/' . $wildcard . '/edit'] = array(
       'title' => 'Edit',
@@ -87,12 +85,12 @@ class RealEstatePropertyUIController extends EntityDefaultUIController {
       'context' => MENU_CONTEXT_INLINE,
       'weight' => 10,
       'file' => 'real_estate_property.uicontroller.inc',
-      'file path' => drupal_get_path('module', $this->entityInfo['module']) . '/includes'
+      'file path' => drupal_get_path('module', $this->entityInfo['module']) . '/includes',
     );
 
     // Menu item for viewing real_estate_property
     $items['real_estate_property/' . $wildcard] = array(
-      //'title' => 'Title',
+      // 'title' => 'Title',
       'title callback' => 'real_estate_property_page_title',
       'title arguments' => array(1),
       'page callback' => 'real_estate_property_page_view',
@@ -104,10 +102,9 @@ class RealEstatePropertyUIController extends EntityDefaultUIController {
     return $items;
   }
 
-
   /**
-   * Create the markup for the add real_estate_property Entities page within the class
-   * so it can easily be extended/overriden.
+   * Create the markup for the add real_estate_property Entities page
+   * within the class so it can easily be extended/overriden.
    */
   public function addPage() {
     $item = menu_get_item();
@@ -127,10 +124,13 @@ class RealEstatePropertyUIController extends EntityDefaultUIController {
 /**
  * Form callback wrapper: create or edit a real_estate_property.
  *
- * @param $real_estate_property
+ * @param array $real_estate_property
  *   The real_estate_property object being edited by this form.
  *
  * @see real_estate_property_edit_form()
+ *
+ * @return string
+ *   form
  */
 function real_estate_property_form_wrapper($real_estate_property) {
   // Add the breadcrumb for the form's location.
@@ -146,10 +146,13 @@ function real_estate_property_form_wrapper($real_estate_property) {
  *   The real_estate_property object being edited by this form.
  *
  * @see real_estate_property_edit_form()
+ *
+ * @return string
+ *   form
  */
 function real_estate_property_delete_form_wrapper($real_estate_property) {
   // Add the breadcrumb for the form's location.
-  //real_estate_property_set_breadcrumb();
+  // real_estate_property_set_breadcrumb();
   return drupal_get_form('real_estate_property_delete_form', $real_estate_property);
 }
 
@@ -159,7 +162,10 @@ function real_estate_property_delete_form_wrapper($real_estate_property) {
  *
  * @param $real_estate_property
  *   The real_estate_property object to edit or for a create form an empty real_estate_property object
- *     with only a real_estate_property type defined.
+ *   with only a real_estate_property type defined.
+ *
+ * @return string
+ *   form
  */
 function real_estate_property_edit_form($form, &$form_state, $real_estate_property) {
   // Add the default field elements.
@@ -197,7 +203,7 @@ function real_estate_property_edit_form($form, &$form_state, $real_estate_proper
       '#type' => 'checkbox',
       '#title' => t('Create new revision'),
       '#description' => t(''),
-//      '#default_value' => $property_type['revision'],
+      // '#default_value' => $property_type['revision'],
       '#access' => user_access('administer property'),
     );
   }
@@ -240,7 +246,7 @@ function real_estate_property_edit_form($form, &$form_state, $real_estate_proper
 
 
 /**
- * Form API validate callback for the real_estate_property form
+ * Form API validate callback for the real_estate_property form.
  */
 function real_estate_property_edit_form_validate(&$form, &$form_state) {
   $real_estate_property = $form_state['real_estate_property'];
@@ -252,22 +258,22 @@ function real_estate_property_edit_form_validate(&$form, &$form_state) {
 
 /**
  * Form API submit callback for the real_estate_property form.
- *
  */
 function real_estate_property_edit_form_submit(&$form, &$form_state) {
 
   $real_estate_property = entity_ui_controller('real_estate_property')->entityFormSubmitBuildEntity($form, $form_state);
-  // Save the real_estate_property and go back to the list of real_estate_property
+  // Save the real_estate_property and go back to the list of real_estate_property.
 
   // Add in created and changed times.
-  if ($real_estate_property->is_new = isset($real_estate_property->is_new) ? $real_estate_property->is_new : 0){
+  if ($real_estate_property->is_new = isset($real_estate_property->is_new) ? $real_estate_property->is_new : 0) {
     $real_estate_property->created = time();
   }
 
   $real_estate_property->changed = time();
 
   if ((user_access('administer property') && !empty($form_state['values']['revision']))) {
-    $real_estate_property->revision = TRUE; // enable revision
+    // Enable revision.
+    $real_estate_property->revision = TRUE;
   }
 
   $real_estate_property->save();
@@ -286,9 +292,12 @@ function real_estate_property_form_submit_delete(&$form, &$form_state) {
  * Form callback: confirmation form for deleting a real_estate_property.
  *
  * @param $real_estate_property
- *   The real_estate_property to delete
+ *   the real_estate_property to delete
  *
  * @see confirm_form()
+ *
+ * @return string
+ *   form
  */
 function real_estate_property_delete_form($form, &$form_state, $real_estate_property) {
   $form_state['real_estate_property'] = $real_estate_property;
@@ -308,7 +317,7 @@ function real_estate_property_delete_form($form, &$form_state, $real_estate_prop
 }
 
 /**
- * Submit callback for real_estate_property_delete_form
+ * Submit callback for real_estate_property_delete_form.
  */
 function real_estate_property_delete_form_submit($form, &$form_state) {
   $real_estate_property = $form_state['real_estate_property'];
@@ -360,9 +369,6 @@ function theme_real_estate_property_add_list($variables) {
 }
 
 
-
-
-
 /**
  * Sets the breadcrumb for administrative real_estate_property pages.
  */
@@ -376,6 +382,3 @@ function real_estate_property_set_breadcrumb() {
 
   drupal_set_breadcrumb($breadcrumb);
 }
-
-
-

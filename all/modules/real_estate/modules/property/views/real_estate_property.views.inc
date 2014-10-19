@@ -1,8 +1,12 @@
 <?php
 
+/**
+ * @file
+ * Real Estate Property views.
+ */
 
 /**
- * Implements hook_views_data()
+ * Implements hook_views_data().
  */
 function real_estate_property_views_data_alter(&$data) {
   $data['real_estate_property']['link_real_estate_property'] = array(
@@ -127,8 +131,8 @@ function real_estate_property_views_default_views() {
 
   $views[] = $view;
 
-
-  // Show list of property
+  //
+  // Show list of property.
 
   $view = new view();
   $view->name = 'real_estate_property_list';
@@ -351,9 +355,7 @@ function real_estate_property_views_default_views() {
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
-
   $views[] = $view;
-
 
   return $views;
 
