@@ -210,40 +210,48 @@ function _mortgage_calculator_payment_frequency($types = array()) {
 function mortgage_calculator_form($form_state) {
   $node = menu_get_object();
 
+  $loan_amount = isset($_SESSION['mortgage_calculator_loan_amount']) ? $_SESSION['mortgage_calculator_loan_amount'] : 0;
+  $mortgage_rate = isset($_SESSION['mortgage_calculator_mortgage_rate']) ? $_SESSION['mortgage_calculator_mortgage_rate'] : 0;
+  $years_to_pay = isset($_SESSION['mortgage_calculator_years_to_pay']) ? $_SESSION['mortgage_calculator_years_to_pay'] : 0;
+  $desired_display = isset($_SESSION['mortgage_calculator_desired_display']) ? $_SESSION['mortgage_calculator_desired_display'] : 'monthly';
+
   $form['mortgage_calculator_loan_amount'] = array(
     '#type' => 'textfield',
     '#title' => t('Price of Home'),
-    '#default_value' => variable_get('mortgage_calculator_config_loan_amount', '') ? token_replace(variable_get('mortgage_calculator_config_loan_amount', '0'), array('node' => $node)) : variable_get('mortgage_calculator_loan_amount', '0'),
+    '#default_value' => variable_get('mortgage_calculator_config_loan_amount', '') ? token_replace(variable_get('mortgage_calculator_config_loan_amount', '0'), array('node' => $node)) : $loan_amount,
     '#size' => 10,
     '#maxlength' => 64,
   );
   $form['mortgage_calculator_mortgage_rate'] = array(
     '#type' => 'textfield',
     '#title' => t('Mortgage Rate'),
-    '#default_value' => variable_get('mortgage_calculator_config_mortgage_rate', '') ? token_replace(variable_get('mortgage_calculator_config_mortgage_rate', '0'), array('node' => $node)) : variable_get('mortgage_calculator_mortgage_rate', '0'),
+    '#default_value' => variable_get('mortgage_calculator_config_mortgage_rate', '') ? token_replace(variable_get('mortgage_calculator_config_mortgage_rate', '0'), array('node' => $node)) : $mortgage_rate,
     '#size' => 10,
     '#maxlength' => 64,
   );
   $form['mortgage_calculator_years_to_pay'] = array(
     '#type' => 'textfield',
     '#title' => t('Years to Pay'),
-    '#default_value' => variable_get('mortgage_calculator_config_years_to_pay', '') ? token_replace(variable_get('mortgage_calculator_config_years_to_pay', '0'), array('node' => $node)) : variable_get('mortgage_calculator_years_to_pay', '0'),
+    '#default_value' => variable_get('mortgage_calculator_config_years_to_pay', '') ? token_replace(variable_get('mortgage_calculator_config_years_to_pay', '0'), array('node' => $node)) : $years_to_pay,
     '#size' => 10,
     '#maxlength' => 64,
   );
   $form['mortgage_calculator_desired_display'] = array(
     '#type' => 'select',
     '#title' => t('Desired table display'),
-    '#default_value' => variable_get('mortgage_calculator_desired_display', 'monthly'),
+    '#default_value' => $desired_display,
     '#options' => _mortgage_calculator_payment_frequency(variable_get('mortgage_calculator_payment_frequency_list', array(
       'monthly',
       'yearly',
     ))),
-    '#description' => t(''),
   );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Calculate'),
+  );
+  $form['reset'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reset'),
   );
 
   return $form;
@@ -253,8 +261,16 @@ function mortgage_calculator_form($form_state) {
  * Form for a mortgage calculator - validation function.
  */
 function mortgage_calculator_form_validate($form, &$form_state) {
-  if ($form_state['values']['mortgage_calculator_years_to_pay'] == '' || $form_state['values']['mortgage_calculator_years_to_pay'] <= 0) {
-    form_set_error('mortgage_calculator_years_to_pay', t('Please enter a value of years to pay.'));
+  if ($form_state['triggering_element']['#array_parents'][0] != 'reset') {
+    if ($form_state['values']['mortgage_calculator_loan_amount'] == '' || $form_state['values']['mortgage_calculator_loan_amount'] <= 0) {
+      form_set_error('mortgage_calculator_loan_amount', t('Please enter a value of loan amount.'));
+    }
+    if ($form_state['values']['mortgage_calculator_mortgage_rate'] == '' || $form_state['values']['mortgage_calculator_mortgage_rate'] <= 0) {
+      form_set_error('mortgage_calculator_mortgage_rate', t('Please enter a value of mortgage rate.'));
+    }
+    if ($form_state['values']['mortgage_calculator_years_to_pay'] == '' || $form_state['values']['mortgage_calculator_years_to_pay'] <= 0) {
+      form_set_error('mortgage_calculator_years_to_pay', t('Please enter a value of years to pay.'));
+    }
   }
 }
 
@@ -262,29 +278,40 @@ function mortgage_calculator_form_validate($form, &$form_state) {
  * Form for a mortgage calculator - submit function.
  */
 function mortgage_calculator_form_submit($form, &$form_state) {
-  foreach ($form_state['values'] as $key => $value) {
-    variable_set($key, $value);
-  }
+  if ($form_state['triggering_element']['#array_parents'][0] != 'reset') {
+    $_SESSION['mortgage_calculator_loan_amount'] = $form_state['values']['mortgage_calculator_loan_amount'];
+    $_SESSION['mortgage_calculator_mortgage_rate'] = $form_state['values']['mortgage_calculator_mortgage_rate'];
+    $_SESSION['mortgage_calculator_years_to_pay'] = $form_state['values']['mortgage_calculator_years_to_pay'];
+    $_SESSION['mortgage_calculator_desired_display'] = $form_state['values']['mortgage_calculator_desired_display'];
 
-  $form_state['redirect'] = 'mortgage-calculator';
+    $form_state['redirect'] = 'mortgage-calculator';
+  }
+  else {
+    unset($_SESSION['mortgage_calculator_loan_amount']);
+    unset($_SESSION['mortgage_calculator_mortgage_rate']);
+    unset($_SESSION['mortgage_calculator_years_to_pay']);
+    unset($_SESSION['mortgage_calculator_desired_display']);
+  }
 }
 
 /**
  * Mortgage calculator page.
  */
 function mortgage_calculator_page() {
-  $output = '';
 
-  if (variable_get('mortgage_calculator_years_to_pay', '0')) {
+  $theme_values = array();
+  if (isset($_SESSION['mortgage_calculator_loan_amount']) & isset($_SESSION['mortgage_calculator_mortgage_rate']) & isset($_SESSION['mortgage_calculator_years_to_pay']) & isset($_SESSION['mortgage_calculator_desired_display'])) {
     $theme_values = array(
-      'loan_amount' => variable_get('mortgage_calculator_loan_amount', '0'),
-      'mortgage_rate' => variable_get('mortgage_calculator_mortgage_rate', '0'),
-      'years_to_pay' => variable_get('mortgage_calculator_years_to_pay', '0'),
-      'desired_display' => variable_get('mortgage_calculator_desired_display', '0'),
+      'loan_amount' => $_SESSION['mortgage_calculator_loan_amount'],
+      'mortgage_rate' => $_SESSION['mortgage_calculator_mortgage_rate'],
+      'years_to_pay' => $_SESSION['mortgage_calculator_years_to_pay'],
+      'desired_display' => $_SESSION['mortgage_calculator_desired_display'],
     );
 
-    $output = theme('mortgage_calculator', $theme_values);
+    $theme_values += mortgage_calculator_calculation($theme_values['loan_amount'], $theme_values['mortgage_rate'], $theme_values['years_to_pay'], $theme_values['desired_display']);
   }
+
+  $output = theme('mortgage_calculator', $theme_values);
 
   return $output;
 }
@@ -300,6 +327,11 @@ function mortgage_calculator_theme($existing, $type, $theme, $path) {
         'mortgage_rate' => NULL,
         'years_to_pay' => NULL,
         'desired_display' => NULL,
+        'rows' => array(),
+        'row' => array(
+          'number_of_payments' => 0,
+          'payment' => 0,
+        ),
       ),
       'template' => 'mortgage-calculator',
     ),
@@ -311,8 +343,6 @@ function mortgage_calculator_theme($existing, $type, $theme, $path) {
  * Preprocess function.
  */
 function template_preprocess_mortgage_calculator(&$variables) {
-
-  $variables += mortgage_calculator_calculation($variables['loan_amount'], $variables['mortgage_rate'], $variables['years_to_pay'], $variables['desired_display']);
 
   $header = array(
     t('Month'),
@@ -360,7 +390,8 @@ function template_preprocess_mortgage_calculator(&$variables) {
  *   'accelerated_bi-weekly', 'accelerated_weekly'
  *
  * @return array
- *   where a key 'rows' contains array of rows with $desired_display mortgage calculations
+ *   where a key 'rows' contains array of rows
+ *   with $desired_display mortgage calculations
  */
 function mortgage_calculator_calculation($loan_amount, $mortgage_rate, $years_to_pay, $desired_display) {
 
@@ -418,7 +449,7 @@ function mortgage_calculator_calculation($loan_amount, $mortgage_rate, $years_to
     'row' => array(
       'number_of_payments' => $number_of_payments,
       'payment' => $payment,
-    )
+    ),
   );
 }
 
